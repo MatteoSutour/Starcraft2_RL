@@ -1,4 +1,4 @@
-# Starcraft2_RL# Starcraft2_RL
+# Starcraft2_RL
 
 ## Installation
 
