@@ -7,8 +7,8 @@ os.environ["SC2PATH"] = "~/StarCraftII/"
 os.environ["SC2_WSL_DETECT"] = "0"
 os.environ['DISPLAY'] = ':0'
 
-model_name = f"{int(time.time())}"
-# model_name = "1678978294"
+# model_name = f"{int(time.time())}"
+model_name = "1679048121"
 
 models_dir = f"models/{model_name}/"
 # logdir = f"logs/{model_name}/"
@@ -22,10 +22,10 @@ if not os.path.exists(models_dir):
 env = Sc2Env()
 
 model = PPO('MlpPolicy', env, verbose=1)
-# model = model.load("./models/1678978294/780.zip", env)
+model = model.load("./models/1679048121/660.zip", env)
 
 TIMESTEPS = 10
-iters = 0
+iters = 66
 while True:
     print("On iteration: ", iters)
     iters += 1

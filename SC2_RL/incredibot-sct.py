@@ -123,14 +123,14 @@ class IncrediBot(BotAI):  # inhereits from BotAI
         reward = self.enemy_health_shield - current_enemy_health_shield
         self.enemy_health_shield = current_enemy_health_shield
 
-        if iteration % 20 == 0:
+        if iteration % 5 == 0:
             print(f"Iter: {iteration}. RWD: {reward}.")
 
         # print('not self unit : ', not self.units)
 
         if not self.units:
             print('D')
-            rwd = -1000
+            rwd = -100
 
             with open("results.txt", "a") as f:
                 f.write(f"D {self.enemy_health_shield}\n")
@@ -145,7 +145,7 @@ class IncrediBot(BotAI):  # inhereits from BotAI
 
         elif not self.enemy_units:
             print('V')
-            rwd = 1000
+            rwd = 100
 
             with open("results.txt", "a") as f:
                 f.write(f"V {self.enemy_health_shield}\n")
