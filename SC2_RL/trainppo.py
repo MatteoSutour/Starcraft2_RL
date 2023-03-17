@@ -8,21 +8,23 @@ os.environ["SC2_WSL_DETECT"] = "0"
 os.environ['DISPLAY'] = ':0'
 
 model_name = f"{int(time.time())}"
+# model_name = "1678978294"
 
 models_dir = f"models/{model_name}/"
-logdir = f"logs/{model_name}/"
+# logdir = f"logs/{model_name}/"
 
 if not os.path.exists(models_dir):
     os.makedirs(models_dir)
 
-if not os.path.exists(logdir):
-    os.makedirs(logdir)
+# if not os.path.exists(logdir):
+#     os.makedirs(logdir)
 
 env = Sc2Env()
 
 model = PPO('MlpPolicy', env, verbose=1)
+# model = model.load("./models/1678978294/780.zip", env)
 
-TIMESTEPS = 10000
+TIMESTEPS = 10
 iters = 0
 while True:
     print("On iteration: ", iters)

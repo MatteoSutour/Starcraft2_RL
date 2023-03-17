@@ -28,19 +28,19 @@ class UnitName(Enum):
 
 
 class IncrediBot(BotAI):  # inhereits from BotAI
+    async def on_start(self):
+        self.enemy_health_shield = 0
+        for enemy_unit in self.enemy_units:
+            self.enemy_health_shield += enemy_unit.health + enemy_unit.shield
+
     async def on_step(self, iteration: int):  # on_step is a method that is called every step of the game.
         if tag_mapping == {}:
             for ind, unit in enumerate(self.units):
                 tag_mapping[unit.tag] = ind
             for ind, enemy_unit in enumerate(self.enemy_units):
-                tag_mapping[enemy_unit.tag] = ind + 7
+                tag_mapping[enemy_unit.tag] = ind + 8
 
         no_action = True
-
-        enemy_health_base = 0
-        for enemy_unit in self.enemy_units:
-            enemy_health_base += enemy_unit.health
-
         while no_action:
             # print('No action')
             try:
@@ -87,7 +87,6 @@ class IncrediBot(BotAI):  # inhereits from BotAI
 
         map = np.zeros((self.game_info.map_size[0], self.game_info.map_size[1], 3), dtype=np.uint8)
         state = np.zeros((16, 5), dtype=np.uint8)
-        enemy_health_after = 0
         # draw our units (with health):
         try:
             for unit in self.units:
@@ -100,9 +99,10 @@ class IncrediBot(BotAI):  # inhereits from BotAI
         except Exception as e:
             print(e)
 
+        current_enemy_health_shield = 0
         # draw the enemy units (with health):
         for enemy_unit in self.enemy_units:
-            enemy_health_after += enemy_unit.health
+            current_enemy_health_shield += enemy_unit.health + enemy_unit.shield
             pos = enemy_unit.position
             c = [100, 0, 255]
             # get unit health fraction:
@@ -114,23 +114,18 @@ class IncrediBot(BotAI):  # inhereits from BotAI
         # horizontal flip:
 
         cv2.imshow('map', cv2.flip(cv2.resize(map, None, fx=4, fy=4, interpolation=cv2.INTER_NEAREST), 0))
-        cv2.waitKey(100)
+        cv2.waitKey(1)
 
         if SAVE_REPLAY:
             # save map image into "replays dir"
             cv2.imwrite(f"replays/{int(time.time())}-{iteration}.png", map)
 
-        reward = enemy_health_base - enemy_health_after
+        reward = self.enemy_health_shield - current_enemy_health_shield
+        self.enemy_health_shield = current_enemy_health_shield
 
         if iteration % 20 == 0:
             print(f"Iter: {iteration}. RWD: {reward}.")
 
-        # write the file:
-        data = {"state": state, "reward": reward, "action": None,
-                "done": False}  # empty action waiting for the next one!
-
-        with open('state_rwd_action.pkl', 'wb') as f:
-            pickle.dump(data, f)
         # print('not self unit : ', not self.units)
 
         if not self.units:
@@ -138,23 +133,22 @@ class IncrediBot(BotAI):  # inhereits from BotAI
             rwd = -1000
 
             with open("results.txt", "a") as f:
-                f.write("D\n")
+                f.write(f"D {self.enemy_health_shield}\n")
             state = np.zeros((16, 5), dtype=np.uint8)
             data = {"state": state, "reward": rwd, "action": None, "done": True}  # empty action waiting for the next one!
             with open('state_rwd_action.pkl', 'wb') as f:
                 pickle.dump(data, f)
-
             cv2.destroyAllWindows()
             cv2.waitKey(1)
             time.sleep(3)
-            sys.exit()
+            await sys.exit()
 
-        if not self.enemy_units:
+        elif not self.enemy_units:
             print('V')
             rwd = 1000
 
             with open("results.txt", "a") as f:
-                f.write("V\n")
+                f.write(f"V {self.enemy_health_shield}\n")
             state = np.zeros((16, 5), dtype=np.uint8)
             data = {"state": state, "reward": rwd, "action": None, "done": True}  # empty action waiting for the next one!
             with open('state_rwd_action.pkl', 'wb') as f:
@@ -162,7 +156,16 @@ class IncrediBot(BotAI):  # inhereits from BotAI
             cv2.destroyAllWindows()
             cv2.waitKey(1)
             time.sleep(3)
-            sys.exit()
+            await sys.exit()
+        
+        else:
+            # write the file:
+            data = {"state": state, "reward": reward, "action": None,
+                    "done": False}  # empty action waiting for the next one!
+
+            with open('state_rwd_action.pkl', 'wb') as f:
+                pickle.dump(data, f)
+            
 
 
 result = run_game(  # run_game is a function that runs the game.
