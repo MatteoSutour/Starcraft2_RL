@@ -22,10 +22,10 @@ if not os.path.exists(models_dir):
 env = Sc2Env()
 
 model = PPO('MlpPolicy', env, verbose=1)
-model = model.load("./models/1679048121/660.zip", env)
+model = model.load("./models/1679048121/740.zip", env)
 
 TIMESTEPS = 10
-iters = 66
+iters = 74
 while True:
     print("On iteration: ", iters)
     iters += 1
